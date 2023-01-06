@@ -9,14 +9,16 @@ cmake_minimum_required(VERSION 3.0)
 set(CMAKE_C_STANDARD 11)
 
 set(VERSION 0.1)
-set(PROJECT_NAME void_test)
+set(PROJECT_NAME unit_test)
 project(${PROJECT_NAME})
 
 add_executable(
     ${PROJECT_NAME}
     main.c
+    test.c
+    test.h
     )
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/../lib/ yaya_void)
+add_subdirectory(${CMAKE_SOURCE_DIR}/../lib/ yaya_unit)
 target_include_directories(${PROJECT_NAME} PUBLIC ../lib/)
-target_link_libraries(${PROJECT_NAME} yaya_void)
+target_link_libraries(${PROJECT_NAME} yaya_unit)

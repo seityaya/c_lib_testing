@@ -10,11 +10,12 @@ set(CMAKE_C_STANDARD 11)
 add_definitions(-std=c11)
 
 set(VERSION 0.1)
-set(PROJECT_NAME yaya_void)
+set(PROJECT_NAME yaya_unit)
 
 project(${PROJECT_NAME})
 
-set(SRC_LIST yaya_void.c)
-set(INC_LIST yaya_void.h)
+set(SRC_LIST yaya_unit.c)
+set(INC_LIST yaya_unit.h
+             yaya_unit_func.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${INC_LIST})
