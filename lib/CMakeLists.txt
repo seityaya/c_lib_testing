@@ -16,6 +16,6 @@ project(${PROJECT_NAME})
 
 set(SRC_LIST yaya_unit.c)
 set(INC_LIST yaya_unit.h
-             yaya_unit_func.h)
+             yaya_unit_macro.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${INC_LIST})

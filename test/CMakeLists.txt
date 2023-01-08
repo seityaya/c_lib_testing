@@ -15,8 +15,6 @@ project(${PROJECT_NAME})
 add_executable(
     ${PROJECT_NAME}
     main.c
-    test.c
-    test.h
     )
 
 add_subdirectory(${CMAKE_SOURCE_DIR}/../lib/ yaya_unit)
