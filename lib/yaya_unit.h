@@ -18,6 +18,7 @@
 #include "yaya_unit_macro.h"
 
 typedef struct unit_test_stat_t {
+    bool run;                        /*флаг запуска теста*/
     uintmax_t count_test_running;    /*количество запущенных  тестов*/
     uintmax_t count_test_completed;  /*количество завершенных тестов*/
     uintmax_t count_test_successful; /*количество успешных    тестов*/
@@ -56,6 +57,7 @@ void __unit_test_group_brk(unit_test_stat_t* stat, char* mesg);
 void __unit_test_group_msg(unit_test_stat_t* stat, char* mesg);
 
 void __unit_test_assert_info(unit_test_stat_t* stat, char* name_test, char* ACT, char* EXT, char* EPS);
+void __unit_test_assert_val(unit_test_stat_t* stat, void* ACT, void* EXT, void* EPS, size_t ACT_S, size_t EXT_S, size_t EPS_S);
 void __unit_test_assert_beg(unit_test_stat_t* stat);
 void __unit_test_assert_end(unit_test_stat_t* stat);
 void __unit_test_assert_suce(unit_test_stat_t* stat);

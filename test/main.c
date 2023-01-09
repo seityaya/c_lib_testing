@@ -10,7 +10,7 @@
 UT_FUNC_GEN(my_unit_test_macro){
     UT_BEG_GROUP(macro) {
         UT_BEG_GROUP(test1) {
-            UT_ASSERT_BOOL_TRUE(true);
+              UT_ASSERT_BOOL_TRUE(true);
         }UT_END_GROUP;
 
         UT_BEG_GROUP(test2){
@@ -30,8 +30,7 @@ UT_FUNC_GEN(my_unit_test_macro){
             UT_MESAGE(TEST);
 
             UT_BLOCK_FREE;
-            a = -1;
-            b = -1;
+            printf("%d %d\n", a, b);
             UT_MESAGE(FREE);
 
         } UT_BLOCK_END;
@@ -112,8 +111,8 @@ UT_FUNC_GEN(my_unit_test_er){
             UT_ASSERT_STR_NOT_EQUAL("test1", "test1");
             UT_ASSERT_NSTR_EQUAL("test1", "test2", 5);
             UT_ASSERT_NSTR_NOT_EQUAL("test1", "test1", 5);
-            UT_ASSERT_NDBL_EQUAL(3.00, 3.01, 0.001);
-            UT_ASSERT_NDBL_NOT_EQUAL(3.00, 3.01, 0.1);
+            //            UT_ASSERT_NDBL_EQUAL(3.00, 3.01, 0.001);
+            //            UT_ASSERT_NDBL_NOT_EQUAL(3.00, 3.01, 0.1);
         }
         UT_END_GROUP;
     }
@@ -129,7 +128,7 @@ int main() {
                                       NULL
                                     };
 
-    unit_test_init (&MyUnitTest, &MyUnitFunc);
+    unit_test_init (&MyUnitTest, MyUnitFunc);
     unit_test_start(&MyUnitTest);
     unit_test_print(&MyUnitTest);
     unit_test_stats(&MyUnitTest);

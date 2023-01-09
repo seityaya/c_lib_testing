@@ -8,7 +8,7 @@
 #include "yaya_unit.h"
 #include "inttypes.h"
 
-bool unit_test_init(unit_test_t *info, unit_test_func_t *list) {
+bool unit_test_init(unit_test_t *info, unit_test_func_t* list) {
     if(info == NULL){ return false; }
     if(list == NULL){ return false; }
 
@@ -29,16 +29,20 @@ bool unit_test_init(unit_test_t *info, unit_test_func_t *list) {
 
     return true;
 }
+
 bool unit_test_start(unit_test_t *info){
     if(info       == NULL){ return false; }
     if(info->list == NULL){ return false; }
 
+    info->stat.run = true;
+    printf("==========\n");
     for (uintmax_t i = 1; i <= info->count_test_func; i++) {
         info->list[i].func(&info->stat);
     }
-
+    printf("==========\n");
     return true;
 }
+
 bool unit_test_stats(unit_test_t *info){
     printf("==========\n");
     printf("FUNC    %" PRIuMAX "\n", info->count_test_func);
@@ -51,40 +55,44 @@ bool unit_test_stats(unit_test_t *info){
 }
 
 bool unit_test_print(unit_test_t *info){
+    if(info       == NULL){ return false; }
+    if(info->list == NULL){ return false; }
 
+    info->stat.run = false;
+    printf("==========\n");
+    for (uintmax_t i = 1; i <= info->count_test_func; i++) {
+        info->list[i].func(&info->stat);
+    }
+    printf("==========\n");
+    return true;
 }
 
 bool __unit_test_last_status(unit_test_stat_t *stat){
+    (void) (stat);
     return true;
 }
 
 void __unit_test_group_beg(unit_test_stat_t* stat, char* name){
-    stat->group++; printf("   | %*s G:%s\n", stat->group * 2, "*", name); fflush(stdout);
+    stat->group++; printf("   | %*s G:%s\n", (int)(stat->group * 2), "*", name); fflush(stdout);
 }
 void __unit_test_group_end(unit_test_stat_t* stat){
     stat->group--;
 }
-
 void __unit_test_block_beg(unit_test_stat_t *stat, char* name){
-    stat->group++; printf("   | %*s B:%s\n", stat->group * 2, "*", name); fflush(stdout);
+    stat->group++; printf("   | %*s B:%s\n", (int)(stat->group * 2), "*", name); fflush(stdout);
 }
-
 void __unit_test_block_init(unit_test_stat_t* stat){
-    stat->group++;               printf("   | %*s I:%s\n", stat->group * 2, "*", "n"); fflush(stdout); stat->group--;
+    stat->group++;               printf("   | %*s I:%s\n", (int)(stat->group * 2), "*", "n"); fflush(stdout); stat->group--;
 }
-
 void __unit_test_block_test(unit_test_stat_t* stat){
-    stat->group++;               printf("   | %*s T:%s\n", stat->group * 2, "*", "n"); fflush(stdout); stat->group--;
+    stat->group++;               printf("   | %*s T:%s\n", (int)(stat->group * 2), "*", "n"); fflush(stdout); stat->group--;
 }
-
 void __unit_test_block_free(unit_test_stat_t* stat){
-    stat->group++;               printf("   | %*s F:%s\n", stat->group * 2, "*", "n"); fflush(stdout); stat->group--;
+    stat->group++;               printf("   | %*s F:%s\n", (int)(stat->group * 2), "*", "n"); fflush(stdout); stat->group--;
 }
-
 void __unit_test_block_end(unit_test_stat_t* stat){
     stat->group--;
 }
-
 void __unit_test_group_ret(unit_test_stat_t* stat, char* mesg){
 
 }
@@ -92,35 +100,34 @@ void __unit_test_group_ext(unit_test_stat_t* stat, char* mesg){
 
 }
 void __unit_test_group_brk(unit_test_stat_t* stat, char* mesg){
+    (void) (stat);
     printf("   | %s\n", mesg); fflush(stdout);
 }
-
 void __unit_test_group_msg(unit_test_stat_t* stat, char* mesg){
-    printf("   | %*s B:%s\n", stat->group * 2, "*", mesg); fflush(stdout);
+    printf("   | %*s B:%s\n", (int)(stat->group * 2), "*", mesg); fflush(stdout);
 }
 
-
 void __unit_test_assert_info(unit_test_stat_t* stat, char* name_test, char* ACT, char* EXT, char* EPS){
-    printf("   %*s", stat->group * 2, "-");         \
-    printf("%*s", 40 - stat->group * 2, "");        \
+    printf("   %*s", (int)(stat->group * 2), "-");         \
+    printf("%*s", 40 - (int)(stat->group * 2), "");        \
     printf("%-*s ", 25,  name_test);                        \
     printf("%-*s ", 10 ,  ACT);                       \
     printf("%-*s ", 10 ,  EXT);                       \
     printf("%-*s ", 10 ,  EPS);
     printf("\n");
 }
+void __unit_test_assert_val(unit_test_stat_t* stat, void* ACT, void* EXT, void* EPS, size_t ACT_S, size_t EXT_S, size_t EPS_S){
 
+}
 void __unit_test_assert_beg(unit_test_stat_t* stat){
     stat->count_test_running++;
 }
 void __unit_test_assert_end(unit_test_stat_t* stat){
     stat->count_test_completed++;              \
-
 }
 void __unit_test_assert_suce(unit_test_stat_t* stat){
     stat->count_test_successful++; \
     printf("%s", "OK |");
-
 }
 void __unit_test_assert_feil(unit_test_stat_t* stat){
     stat->count_test_failure++;    \
