@@ -15,8 +15,10 @@ project(${PROJECT_NAME})
 add_executable(
     ${PROJECT_NAME}
     main.c
-    )
+)
 
-add_subdirectory(${CMAKE_SOURCE_DIR}/../lib/ yaya_unit)
-target_include_directories(${PROJECT_NAME} PUBLIC ../lib/)
-target_link_libraries(${PROJECT_NAME} yaya_unit)
+if (NOT TARGET yaya_unit)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/../lib/ yaya_unit)
+    target_include_directories(${PROJECT_NAME} PUBLIC ../lib/)
+    target_link_libraries(${PROJECT_NAME} yaya_unit)
+endif()
