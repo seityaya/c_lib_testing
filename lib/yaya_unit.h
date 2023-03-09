@@ -36,9 +36,9 @@ typedef struct unit_test_tree_t{
 }unit_test_tree_t;
 
 typedef struct unit_test_stat_t {
-    bool init;                       /*флаг инициализации теста*/
-    bool run;                        /*флаг запуска теста*/
-    bool out;                        /*флаг вывода  текта*/
+    bool_t init;                       /*флаг инициализации теста*/
+    bool_t run;                        /*флаг запуска теста*/
+    bool_t out;                        /*флаг вывода  текта*/
 
     uintmax_t count_test_assert;     /*количество всех        тестов*/
     uintmax_t count_test_running;    /*количество запущенных  тестов*/
@@ -70,10 +70,10 @@ typedef struct unit_test_stat_t {
 }unit_test_stat_t;
 
 typedef struct {
-    bool map;
-    bool suse;
-    bool stat;
-    bool fold;
+    bool_t map;
+    bool_t suse;
+    bool_t stat;
+    bool_t fold;
 } unit_test_sett_t;
 
 typedef struct unit_test_func_t {
@@ -90,13 +90,13 @@ typedef struct unit_test_t {
 
 
 
-bool unit_test_init(unit_test_t *ut_main, unit_test_func_t *list, unit_test_sett_t* sett);
-bool unit_test_start(unit_test_t *ut_main);
-bool unit_test_print(unit_test_t *ut_main);
-bool unit_test_stats(unit_test_t *ut_main);
+bool_t unit_test_init(unit_test_t *ut_main, unit_test_func_t *list, unit_test_sett_t* sett);
+bool_t unit_test_start(unit_test_t *ut_main);
+bool_t unit_test_print(unit_test_t *ut_main);
+bool_t unit_test_stats(unit_test_t *ut_main);
 
 void __unit_test_print(unit_test_t *ut_main);
-bool __unit_test_last_status(unit_test_t *ut_main);
+bool_t __unit_test_last_status(unit_test_t *ut_main);
 void __unit_test_group_beg(unit_test_t *ut_main, char* name);
 void __unit_test_group_end(unit_test_t *ut_main);
 

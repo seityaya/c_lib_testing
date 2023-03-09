@@ -22,7 +22,7 @@ unit_test_sett_t unit_test_sett_def = {
 
 unit_test_stat_t stat = {0};
 
-bool unit_test_init(unit_test_t *ut_main, unit_test_func_t* list, unit_test_sett_t* sett) {
+bool_t unit_test_init(unit_test_t *ut_main, unit_test_func_t* list, unit_test_sett_t* sett) {
     if(ut_main == NULL){ return false; }
     if(list == NULL){ return false; }
     if(sett == NULL){ sett = &unit_test_sett_def; }
@@ -58,7 +58,7 @@ bool unit_test_init(unit_test_t *ut_main, unit_test_func_t* list, unit_test_sett
     return true;
 }
 
-bool unit_test_stats(unit_test_t *ut_main){
+bool_t unit_test_stats(unit_test_t *ut_main){
     if(ut_main->sett->stat == true){
         printf("== STATS ==\n");
         printf("FUNC    %3" PRIuMAX "\n", ut_main->count_test_func);
@@ -71,7 +71,7 @@ bool unit_test_stats(unit_test_t *ut_main){
     return true;
 }
 
-bool unit_test_start(unit_test_t *ut_main){
+bool_t unit_test_start(unit_test_t *ut_main){
     if(ut_main       == NULL){ return false; }
     if(ut_main->list == NULL){ return false; }
 
@@ -89,7 +89,7 @@ bool unit_test_start(unit_test_t *ut_main){
     return true;
 }
 
-bool unit_test_print(unit_test_t *ut_main){
+bool_t unit_test_print(unit_test_t *ut_main){
     if(ut_main       == NULL){ return false; }
     if(ut_main->list == NULL){ return false; }
 
@@ -109,7 +109,8 @@ bool unit_test_print(unit_test_t *ut_main){
 
 void __unit_test_print(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
-    if(ut_main->stat->out == true && (ut_main->sett->suse || ut_main->stat->last_staus == UT_FAIL)) {
+
+    if(ut_main->stat->out && (ut_main->sett->suse || ut_main->stat->last_staus == UT_FAIL)) {
         //head
         if(ut_main->stat->group[ut_main->stat->group_count_current].type == UT_GROUP_T || ut_main->stat->group[ut_main->stat->group_count_current].type == UT_BLOCK_T){
             switch (ut_main->stat->last_staus) {
@@ -124,6 +125,7 @@ void __unit_test_print(unit_test_t *ut_main){
 
         //path
         {
+
             printf("%s", " | ");
             printf("%s", "/");
 
@@ -166,7 +168,7 @@ void __unit_test_print(unit_test_t *ut_main){
     }
 }
 
-bool __unit_test_last_status(unit_test_t *ut_main){
+bool_t __unit_test_last_status(unit_test_t *ut_main){
     if(ut_main == NULL){ return false; }
 
     if(ut_main->stat->last_staus == UT_SUCE){
@@ -186,6 +188,7 @@ void __unit_test_group_beg(unit_test_t *ut_main, char* name){
     ut_main->stat->group[ut_main->stat->group_count_current].name = name;
     ut_main->stat->group[ut_main->stat->group_count_current].type = UT_GROUP_T;
 }
+
 void __unit_test_group_end(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_len_current -= strlen(ut_main->stat->group[ut_main->stat->group_count_current].name);
@@ -194,23 +197,25 @@ void __unit_test_group_end(unit_test_t *ut_main){
 void __unit_test_block_beg(unit_test_t *ut_main, char* name){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current++;
+
     ut_main->stat->group_len_current += strlen(name);
     ut_main->stat->group_len_max = max(ut_main->stat->group_len_max, ut_main->stat->group_len_current);
     ut_main->stat->group_count_max = max(ut_main->stat->group_count_max, ut_main->stat->group_count_current);
+
     ut_main->stat->group[ut_main->stat->group_count_current].name = name;
     ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_T;
 }
 void __unit_test_block_init(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
-    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_INIT_T;
+//    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_INIT_T;
 }
 void __unit_test_block_test(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
-    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_TEST_T;
+//    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_TEST_T;
 }
 void __unit_test_block_free(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
-    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_FREE_T;
+//    ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_FREE_T;
 }
 void __unit_test_block_end(unit_test_t *ut_main){
     if(ut_main == NULL){ return; }
@@ -243,7 +248,7 @@ void __unit_test_assert_info(unit_test_t *ut_main, const char* file, const char*
     ut_main->stat->func = func;
     ut_main->stat->line = line;
 
-    ut_main->stat->last_test = &name_test[8];
+    ut_main->stat->last_test = &name_test[0];
     ut_main->stat->param = param;
     ut_main->stat->val_macro_str = ACT;
     ut_main->stat->exp_macro_str = EXT;
@@ -261,13 +266,13 @@ void __unit_test_assert_val_build(char*  text,
 
     if(ACT_T > 0){
         snprintf(fmt, 128, "%%%s", ACT_S);
-        if(ACT_T == TYPE_GROUP_INT){
+        if(ACT_T == STD_TYPE_GROUP_UINT){
             if(ACT_l == sizeof(uint8_t)){
                 snprintf(text, 1024, fmt, *(int8_t*)ACT_P);
             }
         }
 
-        if(ACT_T == TYPE_GROUP_FLT){
+        if(ACT_T == STD_TYPE_GROUP_FLT){
             snprintf(fmt, 128, "%%.54%s", ACT_S);
             snprintf(text, 1024, fmt, *(double*)ACT_P);
         }

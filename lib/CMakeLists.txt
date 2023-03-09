@@ -11,7 +11,6 @@ add_definitions(-std=c11)
 
 set(VERSION 0.1)
 set(PROJECT_NAME yaya_unit)
-
 project(${PROJECT_NAME})
 
 set(SRC_LIST yaya_unit.c)
