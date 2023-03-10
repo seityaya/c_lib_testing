@@ -85,8 +85,8 @@ typedef enum ut_list_t{
 #define __UT_ASSERT_BOOL_TRUE(     A, B, C) false == (bool_t)(A)
 #define __UT_ASSERT_BOOL_FALSE(    A, B, C) false != (bool_t)(A)
 
-#define __UT_ASSERT_BIT_EQUAL(     A, B, C) COMPILE_WCHDOG((A), (B), _x, _y, (_x ^ _y) != 0)
-#define __UT_ASSERT_BIT_NOT_EQUAL( A, B, C) COMPILE_WCHDOG((A), (B), _x, _y, (_x ^ _y) == 0)
+#define __UT_ASSERT_BIT_EQUAL(     A, B, C) COMPILE_WCHDOG((A), (B), _x, _y, (((umax_t)(_x)) ^ ((umax_t)(_y))) != 0)
+#define __UT_ASSERT_BIT_NOT_EQUAL( A, B, C) COMPILE_WCHDOG((A), (B), _x, _y, (((umax_t)(_x)) ^ ((umax_t)(_y))) == 0)
 
 #define __UT_ASSERT_NUM_EQUAL(     A, B, C) ({ COMPILE_GROUPMATCH(STD_TYPE_GROUP_SINT | STD_TYPE_GROUP_UINT, A);  COMPILE_GROUPMATCH(STD_TYPE_GROUP_SINT | STD_TYPE_GROUP_UINT, B);  (A) != (B); })
 #define __UT_ASSERT_NUM_NOT_EQUAL( A, B, C) ({ COMPILE_GROUPMATCH(STD_TYPE_GROUP_SINT | STD_TYPE_GROUP_UINT, A);  COMPILE_GROUPMATCH(STD_TYPE_GROUP_SINT | STD_TYPE_GROUP_UINT, B);  (A) == (B); })
