@@ -137,7 +137,7 @@ void __unit_test_print(unit_test_t *ut_main){
                 }
             }
 
-            printf("%*s", (int)((ut_main->stat->group_len_max + ut_main->stat->group_count_max) - (len)), "");
+            printf("%*s", ((int)(ut_main->stat->group_len_max + ut_main->stat->group_count_max) - (len)), "");
             printf("%s", " | ");
         }
 
@@ -223,14 +223,17 @@ void __unit_test_block_end(unit_test_t *ut_main){
     ut_main->stat->group_count_current--;
 }
 void __unit_test_group_ret(unit_test_t *ut_main, char* mesg){
+    UNUSED_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current = 0;
 }
 void __unit_test_group_ext(unit_test_t *ut_main, char* mesg){
+    UNUSED_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current = 0;
 }
 void __unit_test_group_brk(unit_test_t *ut_main, char* mesg){
+    UNUSED_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current = 0;
 }
@@ -243,6 +246,7 @@ void __unit_test_group_msg(unit_test_t *ut_main, char* mesg){
     ut_main->stat->group_count_current--;
 }
 void __unit_test_assert_info(unit_test_t *ut_main, const char* file, const char* func, const uintmax_t line, char* name_test, ut_list_t ut_list, uintmax_t param, char* ACT, char* EXT, char* EPS){
+    UNUSED_VAR(ut_list);
     if(ut_main == NULL){ return; }
     ut_main->stat->file = file;
     ut_main->stat->func = func;
@@ -262,6 +266,8 @@ void __unit_test_assert_val_build(char*  text,
                                   char   ACT_N,
                                   char*  ACT_S,
                                   char*  ACT_s){
+    UNUSED_VAR(ACT_N);
+    UNUSED_VAR(ACT_s);
     char fmt[128] = {0};
 
     if(ACT_T > 0){

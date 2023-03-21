@@ -13,6 +13,8 @@ set(VERSION 0.1)
 set(PROJECT_NAME yaya_unit)
 project(${PROJECT_NAME})
 
+add_compile_options(-Wall -Wfatal-errors -Wconversion -Warith-conversion -Wfloat-conversion -Wsign-conversion -Wenum-conversion)
+
 set(SRC_LIST yaya_unit.c)
 set(INC_LIST yaya_unit.h
     yaya_unit_macro.h)
