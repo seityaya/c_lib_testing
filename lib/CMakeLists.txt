@@ -20,8 +20,8 @@ set(INC_LIST yaya_unit.h yaya_unit_macro.h)
 
 add_library(${PROJECT_NAME} SHARED ${SRC_LIST} ${INC_LIST})
 
-if (NOT TARGET yaya_defines)
-    add_subdirectory(${CMAKE_SOURCE_DIR}/../../yaya_defines/lib/ yaya_defines)
-    target_include_directories(${PROJECT_NAME} PUBLIC ../../yaya_defines/lib/)
-    target_link_libraries(${PROJECT_NAME} yaya_defines)
+if (NOT TARGET yaya_define)
+    add_subdirectory(${CMAKE_SOURCE_DIR}/../../yaya_define/lib/ yaya_defines)
+    target_include_directories(${PROJECT_NAME} PUBLIC ../../yaya_define/lib/)
+    target_link_libraries(${PROJECT_NAME} yaya_define)
 endif()
