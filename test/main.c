@@ -10,11 +10,13 @@
 UT_FUNC_GEN(my_unit_test_macro) {
     UT_GROUP_BEG(macro) {
         UT_GROUP_BEG(test1) {
+            UT_MESAGE(EXEMPLE 1);
             UT_GROUP_BEG(test1.1) {
-                UT_GROUP_BEG(test1.1.1) {
                 UT_MESAGE(EXEMPLE 1.1);
+                UT_GROUP_BEG(test1.1.1) {
+                    UT_MESAGE(EXEMPLE 1.1.1);
                 } UT_GROUP_END;
-                } UT_GROUP_END;
+            } UT_GROUP_END;
         } UT_GROUP_END;
 
         UT_GROUP_BEG(test2){
@@ -36,8 +38,7 @@ UT_FUNC_GEN(my_unit_test_macro) {
             UT_BLOCK_FREE;
             UT_MESAGE(FREE);
 
-
-            printf("%d %d\n", a, b);
+            printf("This mesage is printf: %d %d\n", a, b);
 
         } UT_BLOCK_END;
     } UT_GROUP_END;
@@ -83,12 +84,25 @@ UT_FUNC_GEN(my_unit_test_ok) {
             UT_ASSERT_STR_NQ("test1", "test2");
             UT_ASSERT_STR_EQ_N("test1", "test1", 5);
             UT_ASSERT_STR_NQ_N("test1", "test2", 5);
+
+            //TODO ERROR PRINT
+            char test1[] = "test1";
+            char *test1_p = test1;
+            char test2[] = "test2";
+            char *test2_p = test2;
+
+            UT_ASSERT_STR_EQ("test1", test1_p);
+            UT_ASSERT_STR_NQ("test1", test2_p);
+            UT_ASSERT_STR_EQ_N("test1", test1_p, 5);
+            UT_ASSERT_STR_NQ_N("test1", test2_p, 5);
+
+
             UT_ASSERT_FLT_EQ_E(3.00, 3.01, 0.1);
             UT_ASSERT_FLT_NQ_E(3.00, 3.01, 0.001);
 
-            UT_ASSERT_FLT_NQ(f32_c (1.0 / 3.0), f32_c (1.0 / 3.0));
-            UT_ASSERT_FLT_NQ(f64_c (1.0 / 3.0), f64_c (1.0 / 3.0));
-            UT_ASSERT_FLT_NQ(f128_c(1.0L / 3.0L), f128_c(1.0L / 3.0L));
+            UT_ASSERT_FLT_EQ(f32_c (1.0  / 3.0),   f32_c (1.0 / 3.0));
+            UT_ASSERT_FLT_EQ(f64_c (1.0  / 3.0),   f64_c (1.0 / 3.0));
+            UT_ASSERT_FLT_EQ(f128_c(1.0L / 3.0L), f128_c(1.0L / 3.0L));
         }
         UT_GROUP_END;
     }
@@ -135,6 +149,18 @@ UT_FUNC_GEN(my_unit_test_er){
             UT_ASSERT_STR_NQ("test1", "test1");
             UT_ASSERT_STR_EQ_N("test1", "test2", 5);
             UT_ASSERT_STR_NQ_N("test1", "test1", 5);
+
+            //TODO ERROR PRINT
+            char test1[] = "test1";
+            char *test1_p = test1;
+            char test2[] = "test2";
+            char *test2_p = test2;
+
+            UT_ASSERT_STR_EQ("test1", test2_p);
+            UT_ASSERT_STR_NQ("test1", test1_p);
+            UT_ASSERT_STR_EQ_N("test1", test2_p, 5);
+            UT_ASSERT_STR_NQ_N("test1", test1_p, 5);
+
             UT_ASSERT_FLT_EQ_E(3.00, 3.01, 0.001);
             UT_ASSERT_FLT_NQ_E(3.00, 3.01, 0.1);
         }
@@ -144,27 +170,23 @@ UT_FUNC_GEN(my_unit_test_er){
 }
 
 int main() {
+
     unit_test_t MyUnTest = {0};
 
     unit_test_sett_t MyUnSett = { .suse = true,
                                   .stat = true,
-                                  //print_map
-                                  //info_block
-                                  //
                                 };
 
-    unit_test_func_t MyUnFunc[] = { {0},
-                                    {my_unit_test_macro, 1},
-                                    {my_unit_test_ok,    1},
-                                    {my_unit_test_er,    1},
-                                    {0}
+    unit_test_func_t MyUnFunc[] = {
+                                   (unit_test_func_t){.func = my_unit_test_macro, .run_count = 1},
+                                   (unit_test_func_t){.func = my_unit_test_ok,    .run_count = 1},
+                                   (unit_test_func_t){.func = my_unit_test_er,    .run_count = 1},
+                                   (unit_test_func_t){.func = NULL,               .run_count = 0},
                                   };
 
     unit_test_init(&MyUnTest, MyUnFunc, &MyUnSett);
-
-//    unit_test_print(&MyUnTest);
+//  unit_test_print(&MyUnTest);
     unit_test_start(&MyUnTest);
-
     unit_test_stats(&MyUnTest);
 
     return 0;

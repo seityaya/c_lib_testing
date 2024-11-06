@@ -6,12 +6,91 @@
 //Copyright © 2022-2023 Seityagiya Terlekchi. All rights reserved.
 
 #include "inttypes.h"
-#include "math.h"
 #include "stdio.h"
+#include "stdlib.h"
 #include "string.h"
 
 #include "yaya_arithmetic.h"
 #include "yaya_unit.h"
+
+typedef enum {
+    UT_NULL,
+    UT_GROUP_T,
+    UT_BLOCK_T,
+    UT_BLOCK_INIT_T,
+    UT_BLOCK_TEST_T,
+    UT_BLOCK_FREE_T,
+    UT_MESEGE_T,
+}group_t;
+
+typedef struct {
+    const char* name;
+    group_t     type;
+}unit_test_pree_t;
+
+typedef struct unit_test_stat_t {
+    /* Флаги */
+    bool_t init;                       /*флаг инициализации теста*/
+    bool_t run;                        /*флаг запуска теста*/
+    bool_t out;                        /*флаг вывода  текта*/
+
+    /* Статистика тестов */
+    uintmax_t count_test_assert;       /*количество всех        тестов*/
+    uintmax_t count_test_running;      /*количество запущенных  тестов*/
+    uintmax_t count_test_successful;   /*количество успешных    тестов*/
+    uintmax_t count_test_failure;      /*количество неудачных   тестов*/
+
+    /* Группы */
+    uintmax_t group_count_current;     /*Глубина групп*/
+    uintmax_t group_count_max;         /*Максимальная глубина групп*/
+    uintmax_t group_len_current;       /*Длинна групп*/
+    uintmax_t group_len_max;           /*Максимальная длинна групп*/
+    unit_test_pree_t group[1024];      /*Название групп*/
+
+    /* Информация */
+    const char* file;
+    uintmax_t file_len_max;            /*Максимальная длинна файла*/
+    const char* func;
+    uintmax_t func_len_max;            /*Максимальная длинна функции*/
+    uintmax_t line;
+    uintmax_t line_len_max;            /*Максимальная длинна строки*/
+
+    /* Тесты */
+    char* last_test_name;              /* Название последнено теста*/
+    uintmax_t last_test_staus;         /* Статус последнено теста*/
+    uintmax_t last_test_param;         /* Количество параметров последнено теста*/
+
+    /* 1 колонка */
+    uintmax_t last_val_macro_str_len;            /*Максимальная длинна */
+    uintmax_t last_exp_macro_str_len;            /*Максимальная длинна */
+    uintmax_t last_eps_macro_str_len;            /*Максимальная длинна */
+
+    char* last_op_macro_str;
+    char* last_val_macro_str;
+    char* last_exp_macro_str;
+    char* last_eps_macro_str;
+
+    char val_value_str[1024];
+    char exp_value_str[1024];
+    char eps_value_str[1024];
+
+    char* val_last_test_spec;              /* Спецификатор типа последнено теста*/
+    char* exp_last_test_spec;              /* Спецификатор типа последнено теста*/
+    char* eps_last_test_spec;              /* Спецификатор типа последнено теста*/
+}unit_test_stat_t;
+
+typedef struct unit_test_p{
+    uintmax_t count_test_func;        /*общее количество функций с тестами*/
+    void *list;                       /*указатель на массив структур с функциями*/
+    unit_test_sett_t *sett;           /*указатель на структуру с настройками*/
+    unit_test_stat_t *stat;           /*статистика*/
+}unit_test_T;
+
+typedef enum last_staus_t {
+    UT_SUCE,
+    UT_FAIL,
+    UT_SKIP,
+}last_staus_t;
 
 unit_test_sett_t unit_test_sett_def = {
     .suse = false,
@@ -19,27 +98,28 @@ unit_test_sett_t unit_test_sett_def = {
 };
 
 unit_test_stat_t stat = {0};
+unit_test_T test = {0};
 
-bool_t unit_test_init(unit_test_t *ut_main, unit_test_func_t* list, unit_test_sett_t* sett) {
-    if(ut_main == NULL) { return false; }
+bool_t unit_test_init(unit_test_p *ut_main_p, unit_test_func_t *list, unit_test_sett_t *sett) {
+    if( ut_main_p == NULL) { return false; }
+    if(ut_main_p == NULL) { return false; }
+
     if(list    == NULL) { return false; }
     if(sett    == NULL) { sett = &unit_test_sett_def; }
 
+    *ut_main_p = &test;
+    unit_test_p ut_main = *ut_main_p;
+
     ut_main->list = list;
     ut_main->sett = sett;
-
     ut_main->stat = &stat;
 
     unit_test_func_t* l = ut_main->list;
     {
-        if(l[0].func != NULL){
-            ut_main->count_test_func = 0;
-        }else{
-            for (uintmax_t i = 1; i < __UINTMAX_MAX__; i++) {
-                if(l[i].func == NULL){
-                    ut_main->count_test_func = i - 1;
-                    break;
-                }
+        for (uintmax_t i = 0; i < __UINTMAX_MAX__; i++) {
+            if(l[i].func == NULL){
+                ut_main->count_test_func = i;
+                break;
             }
         }
     }
@@ -47,19 +127,27 @@ bool_t unit_test_init(unit_test_t *ut_main, unit_test_func_t* list, unit_test_se
     ut_main->stat->init = true;
     ut_main->stat->run  = false;
     ut_main->stat->out  = false;
-    for (uintmax_t i = 1; i <= ut_main->count_test_func; i++) {
+    for (uintmax_t i = 0; i < ut_main->count_test_func; i++) {
         if(l[i].run_count == 0){
-            l[i].func(ut_main);
+            l[i].func(ut_main, 0);
         }else{
             for(uintmax_t j = 0; j < l[i].run_count; j++) {
-                l[i].func(ut_main);
+                l[i].func(ut_main, 0);
             }
         }
     }
 
     return true;
 }
-bool_t unit_test_start(unit_test_t *ut_main){
+
+bool_t unit_test_free(unit_test_p *ut_main_p){
+    if( ut_main_p == NULL) { return false; }
+    if(ut_main_p == NULL) { return false; }
+    *ut_main_p = nullptr;
+    return true;
+}
+
+bool_t unit_test_start(unit_test_p ut_main){
     if(ut_main       == NULL){ return false; }
     if(ut_main->list == NULL){ return false; }
 
@@ -70,15 +158,15 @@ bool_t unit_test_start(unit_test_t *ut_main){
     unit_test_func_t* l = ut_main->list;
 
     printf("=== TESTS ===\n");
-    for (uintmax_t i = 1; i <= ut_main->count_test_func; i++) {
+    for (uintmax_t i = 0; i < ut_main->count_test_func; i++) {
         for(uintmax_t j = 0; j < l[i].run_count; j++){
-            l[i].func(ut_main);
+            l[i].func(ut_main, 1);
         }
     }
     printf("=============\n");
     return true;
 }
-bool_t unit_test_print(unit_test_t *ut_main){
+bool_t unit_test_print(unit_test_p ut_main){
     if(ut_main       == NULL){ return false; }
     if(ut_main->list == NULL){ return false; }
 
@@ -89,15 +177,15 @@ bool_t unit_test_print(unit_test_t *ut_main){
     unit_test_func_t* l = ut_main->list;
 
     printf("==== МАР ====\n");
-    for (uintmax_t i = 1; i <= ut_main->count_test_func; i++) {
+    for (uintmax_t i = 0; i < ut_main->count_test_func; i++) {
         for(uintmax_t j = 0; j < l[i].run_count; j++){
-            l[i].func(ut_main);
+            l[i].func(ut_main, 0);
         }
     }
     printf("=============\n");
     return true;
 }
-bool_t unit_test_stats(unit_test_t *ut_main){
+bool_t unit_test_stats(unit_test_p ut_main){
     if(ut_main->sett->stat == true){
         printf("=== STATS ===\n");
         printf("FUNC    %5" PRIuMAX "\n", ut_main->count_test_func);
@@ -110,26 +198,26 @@ bool_t unit_test_stats(unit_test_t *ut_main){
     return true;
 }
 
-void __unit_test_assert_beg(unit_test_t *ut_main){
+void __unit_test_assert_beg(unit_test_p ut_main){
     if(ut_main->stat->init){
         ut_main->stat->count_test_assert++;
     }
     ut_main->stat->last_test_staus = UT_SKIP;
 }
-void __unit_test_assert_end(unit_test_t *ut_main){
+void __unit_test_assert_end(unit_test_p ut_main){
     __unit_test_format_print(ut_main);
 }
 
-void __unit_test_assert_suce(unit_test_t *ut_main){
+void __unit_test_assert_suce(unit_test_p ut_main){
     ut_main->stat->count_test_successful++;
     ut_main->stat->last_test_staus = UT_SUCE;
 }
-void __unit_test_assert_fail(unit_test_t *ut_main){
+void __unit_test_assert_fail(unit_test_p ut_main){
     ut_main->stat->count_test_failure++;
     ut_main->stat->last_test_staus = UT_FAIL;
 }
 
-void __unit_test_group_beg(unit_test_t *ut_main, char* name){
+void __unit_test_group_beg(unit_test_p ut_main, char* name){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current++;
     ut_main->stat->group_len_current += strlen(name);
@@ -141,13 +229,13 @@ void __unit_test_group_beg(unit_test_t *ut_main, char* name){
         ut_main->stat->group_count_max = max(ut_main->stat->group_count_max, ut_main->stat->group_count_current);
     }
 }
-void __unit_test_group_end(unit_test_t *ut_main){
+void __unit_test_group_end(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_len_current -= strlen(ut_main->stat->group[ut_main->stat->group_count_current].name);
     ut_main->stat->group_count_current--;
 }
 
-void __unit_test_block_beg(unit_test_t *ut_main, char* name){
+void __unit_test_block_beg(unit_test_p ut_main, char* name){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_count_current++;
     ut_main->stat->group_len_current += strlen(name);
@@ -159,49 +247,49 @@ void __unit_test_block_beg(unit_test_t *ut_main, char* name){
         ut_main->stat->group_count_max = max(ut_main->stat->group_count_max, ut_main->stat->group_count_current);
     }
 }
-void __unit_test_block_init(unit_test_t *ut_main){
+void __unit_test_block_init(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_INIT_T;
 }
-void __unit_test_block_test(unit_test_t *ut_main){
+void __unit_test_block_test(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_TEST_T;
 }
-void __unit_test_block_free(unit_test_t *ut_main){
+void __unit_test_block_free(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group[ut_main->stat->group_count_current].type = UT_BLOCK_FREE_T;
 }
-void __unit_test_block_end(unit_test_t *ut_main){
+void __unit_test_block_end(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
     ut_main->stat->group_len_current -= strlen(ut_main->stat->group[ut_main->stat->group_count_current].name);
     ut_main->stat->group_count_current--;
 }
 
-void __unit_test_group_ret(unit_test_t *ut_main, const char* file, const char* func, const uintmax_t line, const char* mesg){
-    UNUSED_VAR(mesg);
+void __unit_test_group_ret(unit_test_p ut_main, const char* file, const char* func, uintmax_t line, const char* mesg){
+    UNUSED_LOCAL_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->file = file;
     ut_main->stat->func = func;
     ut_main->stat->line = line;
     ut_main->stat->group_count_current = 0;
 }
-void __unit_test_group_ext(unit_test_t *ut_main, const char* file, const char* func, const uintmax_t line, const char* mesg){
-    UNUSED_VAR(mesg);
+void __unit_test_group_ext(unit_test_p ut_main, const char* file, const char* func, uintmax_t line, const char* mesg){
+    UNUSED_LOCAL_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->file = file;
     ut_main->stat->func = func;
     ut_main->stat->line = line;
     ut_main->stat->group_count_current = 0;
 }
-void __unit_test_group_brk(unit_test_t *ut_main, const char* file, const char* func, const uintmax_t line, const char* mesg){
-    UNUSED_VAR(mesg);
+void __unit_test_group_brk(unit_test_p ut_main, const char* file, const char* func, uintmax_t line, const char* mesg){
+    UNUSED_LOCAL_VAR(mesg);
     if(ut_main == NULL){ return; }
     ut_main->stat->file = file;
     ut_main->stat->func = func;
     ut_main->stat->line = line;
     ut_main->stat->group_count_current--;
 }
-void __unit_test_group_msg(unit_test_t *ut_main, const char* file, const char* func, const uintmax_t line, const char* mesg){
+void __unit_test_group_msg(unit_test_p ut_main, const char* file, const char* func, uintmax_t line, const char* mesg){
     if(ut_main == NULL){ return; }
     ut_main->stat->file = file;
     ut_main->stat->func = func;
@@ -213,10 +301,10 @@ void __unit_test_group_msg(unit_test_t *ut_main, const char* file, const char* f
     ut_main->stat->group_count_current--;
 }
 
-void __unit_test_assert_info(unit_test_t *ut_main,
+void __unit_test_assert_info(unit_test_p ut_main,
         const char* file,
         const char* func,
-        const uintmax_t line,
+        uintmax_t line,
         char* name_test,
         uintmax_t param,
         char* OP,
@@ -248,7 +336,7 @@ void __unit_test_assert_info(unit_test_t *ut_main,
     }
 }
 
-void __unit_test_format_print(unit_test_t *ut_main){
+void __unit_test_format_print(unit_test_p ut_main){
     if(ut_main == NULL){ return; }
 
     if(ut_main->stat->out && (ut_main->sett->suse || ut_main->stat->last_test_staus == UT_FAIL)) {
@@ -362,22 +450,28 @@ void __unit_test_format_print(unit_test_t *ut_main){
 void __unit_test_assert_val_build(char*  text,
                                   void*  v_point,
                                   int8_t v_size ,
-                                  int8_t v_group,
+                                  uint8_t v_group,
                                   char   v_index,
                                   char*  v_print,
                                   const char*  v_spec ){
-    UNUSED_VAR(v_index);
-    UNUSED_VAR(v_spec);
+    UNUSED_LOCAL_VAR(v_index);
+    UNUSED_LOCAL_VAR(v_spec);
 
     char fmt[128] = {0};
 
-    if(v_group == STD_TYPE_GROUP_CHAR){
+    if(v_group == BASE_TYPE_GROUP_BOOL){
+        snprintf(fmt, 128, "\'%%%s\'", v_print);
+        snprintf(text, 1024, fmt, *(bool_t*)v_point);
+        return;
+    }
+
+    if(v_group == BASE_TYPE_GROUP_CHAR){
         snprintf(fmt, 128, "\'%%%s\'", v_print);
         snprintf(text, 1024, fmt, *(char*)v_point);
         return;
     }
 
-    if(v_group == STD_TYPE_GROUP_UINT){
+    if(v_group == BASE_TYPE_GROUP_UINT){
         snprintf(fmt, 128, "%%%s", v_print);
 
         if(v_size == sizeof(uint8_t)){
@@ -395,7 +489,7 @@ void __unit_test_assert_val_build(char*  text,
         return;
     }
 
-    if(v_group == STD_TYPE_GROUP_SINT){
+    if(v_group == BASE_TYPE_GROUP_SINT){
         snprintf(fmt, 128, "%%%s", v_print);
 
         if(v_size == sizeof(int8_t)){
@@ -413,7 +507,7 @@ void __unit_test_assert_val_build(char*  text,
         return;
     }
 
-    if(v_group == STD_TYPE_GROUP_FLT){
+    if(v_group == BASE_TYPE_GROUP_FLT){
         if(v_size == sizeof(f32_t)){
             snprintf(fmt, 128, "%%.26%s", v_print);
             snprintf(text, 1024, fmt, *(f32_t*)v_point);
@@ -429,25 +523,25 @@ void __unit_test_assert_val_build(char*  text,
         return;
     }
 
-    if(v_group == STD_TYPE_GROUP_CHAR_P){
+    if(v_group == BASE_TYPE_GROUP_CHAR_P){
         snprintf(fmt, 128, "\"%%%s\"", v_print);
         snprintf(text, 1024, fmt, (char*)v_point);
         return;
     }
 
-    if(v_group > STD_TYPE_GROUP_CHAR_P){
+    if(v_group > BASE_TYPE_GROUP_CHAR_P){
         snprintf(text, 1024, "0x%0*" PRIxPTR, (int)(sizeof(uintmax_t) * 2), *(uintmax_t*)v_point);
         return;
     }
 }
 
-void __unit_test_assert_val(unit_test_t *ut_main,
-                            void*  ACT_P, void*  EXT_P,  void* EPS_P,
-                            int8_t ACT_l, int8_t EXT_l, int8_t EPS_l,
-                            int8_t ACT_T, int8_t EXT_T, int8_t EPS_T,
-                            char   ACT_N, char   EXT_N, char   EPS_N,
-                            char*  ACT_S, char*  EXT_S,  char* EPS_S,
-                            char*  ACT_s, char*  EXT_s,  char* EPS_s)
+void __unit_test_assert_val(unit_test_p ut_main,
+                            void*  ACT_P,  void*  EXT_P,  void* EPS_P,
+                            int8_t ACT_l,  int8_t EXT_l,  int8_t EPS_l,
+                            uint8_t ACT_T, uint8_t EXT_T, uint8_t EPS_T,
+                            char   ACT_N,  char   EXT_N,  char   EPS_N,
+                            char*  ACT_S,  char*  EXT_S,  char* EPS_S,
+                            char*  ACT_s,  char*  EXT_s,  char* EPS_s)
 {
     if(ut_main == NULL){ return; }
     ut_main->stat->count_test_running++;
