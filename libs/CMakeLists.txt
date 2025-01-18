@@ -11,8 +11,6 @@ if(NOT TARGET yaya_memory)
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/libs/c_lib_memory"
     )
     FetchContent_MakeAvailable(c_lib_memory)
-else()
-    add_subdirectory(${CMAKE_SOURCE_DIR}/libs/c_lib_memory)
 endif()
 
 if(NOT TARGET yaya_macro)
@@ -22,8 +20,6 @@ if(NOT TARGET yaya_macro)
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/libs/c_lib_macro"
     )
     FetchContent_MakeAvailable(c_lib_macro)
-else()
-    add_subdirectory(${CMAKE_SOURCE_DIR}/libs/c_lib_macro)
 endif()
 
 if(NOT TARGET yaya_arithmetic)
@@ -33,8 +29,6 @@ if(NOT TARGET yaya_arithmetic)
       SOURCE_DIR "${CMAKE_SOURCE_DIR}/libs/c_lib_arithmetic"
     )
     FetchContent_MakeAvailable(c_lib_arithmetic)
-else()
-    add_subdirectory(${CMAKE_SOURCE_DIR}/libs/c_lib_arithmetic)
 endif()
 
 
