@@ -9,15 +9,10 @@ cmake_minimum_required(VERSION 3.0)
 
 project(yaya_testing_using)
 
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 23)
 
-file(GLOB FILES
-    *.c
-    *.h
-)
+file(GLOB FILES *.c *.h)
 
-set(SOURSE_LIST
-    ${FILES}
-)
+set(SOURSE_LIST ${FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC yaya_testing)

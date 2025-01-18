@@ -22,6 +22,6 @@ file(GLOB FILES *.c *.h)
 
 add_library(${PROJECT_NAME} ${FILES})
 
-target_link_libraries(${PROJECT_NAME} PUBLIC yaya_arithmetic c_lib_memory c_lib_macro)
+target_link_libraries(${PROJECT_NAME} PUBLIC yaya_arithmetic yaya_memory yaya_macro)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
