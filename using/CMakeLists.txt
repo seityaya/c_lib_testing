@@ -13,6 +13,6 @@ set(CMAKE_C_STANDARD 23)
 
 file(GLOB FILES *.c *.h)
 
-set(SOURSE_LIST ${FILES})
+add_executable(${PROJECT_NAME} ${FILES})
 
 target_link_libraries(${PROJECT_NAME} PUBLIC yaya_testing)
