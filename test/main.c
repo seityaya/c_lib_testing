@@ -5,6 +5,7 @@
 //SPDX-License-Identifier: LGPL-2.1-or-later
 //Copyright © 2022-2023 Seityagiya Terlekchi. All rights reserved.
 
+#include "stdio.h"
 #include "yaya_unit.h"
 
 UT_FUNC_GEN(my_unit_test_macro) {
@@ -170,8 +171,7 @@ UT_FUNC_GEN(my_unit_test_er){
 }
 
 int main() {
-
-    unit_test_t MyUnTest = {0};
+    unit_test_p MyUnTest = {0};
 
     unit_test_sett_t MyUnSett = { .suse = true,
                                   .stat = true,
@@ -185,9 +185,9 @@ int main() {
                                   };
 
     unit_test_init(&MyUnTest, MyUnFunc, &MyUnSett);
-//  unit_test_print(&MyUnTest);
-    unit_test_start(&MyUnTest);
-    unit_test_stats(&MyUnTest);
+    // unit_test_print(MyUnTest);
+    unit_test_start(MyUnTest);
+    unit_test_stats(MyUnTest);
 
     return 0;
 }

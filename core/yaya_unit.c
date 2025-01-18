@@ -5,13 +5,14 @@
 //SPDX-License-Identifier: LGPL-2.1-or-later
 //Copyright © 2022-2023 Seityagiya Terlekchi. All rights reserved.
 
+#include "yaya_unit.h"
+
 #include "inttypes.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
-
 #include "yaya_arithmetic.h"
-#include "yaya_unit.h"
+#include "yaya_bool.h"
 
 typedef enum {
     UT_NULL,
@@ -326,6 +327,7 @@ void __unit_test_assert_info(unit_test_p ut_main,
     ut_main->stat->last_eps_macro_str = EPS;
 
     if(ut_main->stat->init){
+        ut_main->stat->file_len_max = max(1, 2);  // DEL
         ut_main->stat->file_len_max = max(ut_main->stat->file_len_max, strlen(file));
         ut_main->stat->func_len_max = max(ut_main->stat->func_len_max, strlen(func));
         ut_main->stat->line_len_max = max(ut_main->stat->line_len_max, line);
