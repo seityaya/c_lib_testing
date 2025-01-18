@@ -1,9 +1,0 @@
-[submodule "libs/c_lib_arithmetic"]
-	path = libs/c_lib_arithmetic
-	url = https://github.com/seityaya/c_lib_arithmetic.git
-[submodule "libs/c_lib_macro"]
-	path = libs/c_lib_macro
-	url = https://github.com/seityaya/c_lib_macro.git
-[submodule "libs/c_lib_memory"]
-	path = libs/c_lib_memory
-	url = https://github.com/seityaya/c_lib_memory.git
